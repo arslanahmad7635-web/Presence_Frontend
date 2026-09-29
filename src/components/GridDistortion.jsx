@@ -19,7 +19,7 @@ export default function GridDistortion({
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     renderer.domElement.style.display = 'block';
     container.appendChild(renderer.domElement);
 
@@ -156,7 +156,10 @@ export default function GridDistortion({
     window.addEventListener('resize', handleResize);
 
     let animationFrameId;
+    let isPageVisible = !document.hidden;
     const animate = () => {
+      if (!isPageVisible) return;
+
       animationFrameId = requestAnimationFrame(animate);
 
       if (loadProgress < 1.0) {
@@ -167,11 +170,19 @@ export default function GridDistortion({
 
       renderer.render(scene, camera);
     };
+
+    const handleVisibilityChange = () => {
+      isPageVisible = !document.hidden;
+      if (isPageVisible) animate();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     animate();
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       container.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
       if (container && renderer.domElement && container.contains(renderer.domElement)) {

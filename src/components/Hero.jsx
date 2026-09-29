@@ -1,23 +1,59 @@
-import React from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ScanFace, ArrowRight } from 'lucide-react';
 import FaceRecognitionImage from '../assets/face.jpeg';
-import GridDistortion from './GridDistortion';
+
+const GridDistortion = lazy(() => import('./GridDistortion'));
 
 export default function Hero() {
+  const [showDistortion, setShowDistortion] = useState(false);
+
+  useEffect(() => {
+    const show = () => setShowDistortion(true);
+    const idleId = window.requestIdleCallback
+      ? window.requestIdleCallback(show, { timeout: 1500 })
+      : window.setTimeout(show, 1000);
+
+    return () => {
+      if (window.cancelIdleCallback && typeof idleId === 'number') {
+        window.cancelIdleCallback(idleId);
+      } else {
+        window.clearTimeout(idleId);
+      }
+    };
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center px-6 md:px-12 pt-28 pb-16 overflow-hidden bg-slate-950">
       
       {/* 1. Background Grid Distortion Effect (Interactive Canvas spanning full screen) */}
       <div className="absolute inset-0 z-0 opacity-60 pointer-events-auto">
-      <GridDistortion
-        imageSrc={FaceRecognitionImage}
-        grid={8} // Try 8 or 10 for larger blocks
-        mouse={0.1}
-        strength={0.15}
-        relaxation={0.9}
-        className="w-full h-full object-cover"
-      />
+        {showDistortion ? (
+          <Suspense fallback={
+            <img
+              src={FaceRecognitionImage}
+              alt=""
+              aria-hidden="true"
+              className="w-full h-full object-cover"
+            />
+          }>
+            <GridDistortion
+              imageSrc={FaceRecognitionImage}
+              grid={8}
+              mouse={0.1}
+              strength={0.15}
+              relaxation={0.9}
+              className="w-full h-full object-cover"
+            />
+          </Suspense>
+        ) : (
+          <img
+            src={FaceRecognitionImage}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
 
       {/* 2. Dark Gradient Overlays for Readability */}

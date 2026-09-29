@@ -60,7 +60,7 @@ export default function AnimatedCardDemo() {
               ? { x: POSITIONS[i].x, y: POSITIONS[i].y, rotate: POSITIONS[i].rotate }
               : { x: STACKED[i].x,  y: STACKED[i].y,  rotate: STACKED[i].rotate }
           }
-          transition={{ ease: easeInOut, duration: 0.75 }}
+          transition={{ ease: easeInOut, duration: 0.55 }}
           style={{ zIndex: POSITIONS[i].z }}
           className="absolute"
         >
