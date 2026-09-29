@@ -2,47 +2,77 @@ import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ScanFace } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AuthLayout from './AuthLayoutPage';
+import api from '../services/axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setLoginError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  async function handleLogin(e) {
+    
     e.preventDefault();
-    setError('');
+
     setLoading(true);
-
+  
+    // Transform form data into an object
+    const formData = new FormData(e.target);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+  
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/token/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+      // Make the login request
+      const response = await api.post(`/authentication/user_login`, data);
+  
+      // Handle the response
+      console.log("Login successful:", response.data);
 
-      const data = await response.json();
+      localStorage.setItem('is_restricted', response.data['is_restricted_account']);
+      
 
-      if (!response.ok) {
-        throw new Error(data.detail || 'Invalid username or password.');
+      if(response.data['is_restricted_account']){
+
+        localStorage.setItem('user_email', response.data['email']);
+
+        setTwoStepFormHidden(false);
+
+        e.target.classList.add("hidden");
+
+      } 
+      else{
+
+        localStorage.setItem('store_date', response.data['store_date']);
+        localStorage.setItem('store_time', response.data['store_time']);
+
+        navigate("/dashboard");
+
       }
 
-      localStorage.setItem('access_token', data.access);
-      localStorage.setItem('refresh_token', data.refresh);
-      if (rememberMe) {
-        localStorage.setItem('remember_me', 'true');
-      }
-
-      alert('Login successful!');
-      // window.location.href = '/dashboard';
-    } catch (err) {
-      setError(err.message);
-    } finally {
       setLoading(false);
+
+
+    } catch (error) {
+      // Handle errors
+      console.error("Login failed:", error.response ? error.response.data : error.message);
+
+      setLoginError(error.response ? error.response.data.error : "");
+
+      setTimeout(() => {
+        setLoginError("");
+      }, 1500);
+
+      setLoading(false);
+      // Show an error message to the user if needed
     }
-  };
+  }
 
   return (
     <AuthLayout
@@ -56,20 +86,21 @@ export default function Login() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleLogin} className="space-y-5">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-300">Email / Username</label>
+          <label className="text-sm font-medium text-slate-300">Email</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
               <Mail className="h-4.5 w-4.5 text-slate-500" />
             </div>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              name="email"
               className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
-              placeholder="Enter your email or username"
+              placeholder="johndoe@example.com"
             />
           </div>
         </div>
@@ -87,6 +118,7 @@ export default function Login() {
               required
               className="block w-full pl-10 pr-10 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
               placeholder="••••••••"
+              name="password"
             />
             <button
               type="button"
@@ -99,15 +131,6 @@ export default function Login() {
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-white/20 bg-white/[0.03] text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-950"
-            />
-            <span className="text-sm text-slate-400">Remember me</span>
-          </label>
           <a href="/forgetpassword" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
             Forgot password?
           </a>
