@@ -20,7 +20,7 @@ export default function Navbar() {
       <div className="flex items-center">
         <Link to="/" className="flex items-center gap-1 group">
           <span className="font-bold text-2xl md:text-3xl tracking-tight text-white transition-colors group-hover:text-cyan-300">
-            Chronos<span className="text-cyan-400 font-bold mx-0.5">.</span>Face
+            Presence<span className="text-cyan-400 font-bold mx-0.5">.</span>
           </span>
         </Link>
       </div>
