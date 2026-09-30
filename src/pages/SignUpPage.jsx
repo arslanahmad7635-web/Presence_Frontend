@@ -1,32 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Mail, Hash, Lock, Eye, EyeOff, ChevronDown, ArrowRight, UserPlus } from 'lucide-react';
 import AuthLayout from './AuthLayoutPage';
+import api from '../services/axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    rollNumber: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'student', // default role
-  });
+
+  const navigate = useNavigate();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const register_err_msg = localStorage.getItem('registration_error_message');
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  function handle_register_error(msg){
 
-  const handleSubmit = async (e) => {
+    const register_err_element = document.getElementById('register_err');
+  
+      register_err_element.textContent = msg;
+
+      register_err_element.style.opacity = "1";
+
+      setTimeout(() => {
+
+        register_err_element.style.opacity = "0";
+    
+      }, 3000);
+
+  }
+
+  useEffect(() => {
+
+    if (register_err_msg){
+
+      handle_register_error(`${register_err_msg}`);
+  
+    }
+
+  });
+
+  
+  localStorage.removeItem("registration_error_message");
+
+
+  async function handleRegister(e) {
     e.preventDefault();
+
     setLoading(true);
-    // Add your Django signup API call here
-    setTimeout(() => {
+  
+    // Transform form data into an object
+    const formData = new FormData(e.target);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+  
+    try {
+      // Make the login request
+      const response = await api.post(`/authentication/user_registration`, data);
+  
+      // Handle the response
+      console.log(response.data);
+
+      localStorage.setItem("verification_token",response.data['verification_token']);
+
+      navigate("/user-otp-verify");
+
       setLoading(false);
-      alert('Account created & face profile initialized!');
-    }, 1500);
-  };
+
+
+    } catch (error) {
+      // Handle errors
+      console.error("Registration failed:", error.response ? error.response.data : error.message);
+
+      handle_register_error(error.response ? error.response.data.error : "");
+
+      setLoading(false);
+      // Show an error message to the user if needed
+    }
+  }
 
   return (
     <AuthLayout
@@ -34,7 +85,10 @@ export default function SignupPage() {
       title="Create your account"
       subtitle="Enroll into the Chronos Face system."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleRegister} className="space-y-4">
+        <div id='register_err'>
+
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Full Name */}
           <div className="space-y-1.5 md:col-span-2">
@@ -45,9 +99,7 @@ export default function SignupPage() {
               </div>
               <input
                 type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
+                name="username"
                 required
                 className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
                 placeholder="John Doe"
@@ -55,45 +107,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Roll Number / Employee ID */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-300">Roll no / employee ID</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <Hash className="h-4.5 w-4.5 text-slate-500" />
-              </div>
-              <input
-                type="text"
-                name="rollNumber"
-                value={formData.rollNumber}
-                onChange={handleChange}
-                required
-                // Monospace here is deliberate, not decorative: it's an ID
-                // string the user will visually match against a card/roster.
-                className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 font-mono text-[0.95em] tracking-tight focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
-                placeholder="CS-2024-001"
-              />
-            </div>
-          </div>
-
-          {/* Role Selector */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-300">Role</label>
-            <div className="relative">
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="block w-full pl-3.5 pr-10 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
-              >
-                <option value="student" className="bg-slate-900">Student</option>
-                <option value="admin" className="bg-slate-900">System administrator</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
-                <ChevronDown className="h-4.5 w-4.5 text-slate-500" />
-              </div>
-            </div>
-          </div>
 
           {/* Email */}
           <div className="space-y-1.5 md:col-span-2">
@@ -105,8 +118,6 @@ export default function SignupPage() {
               <input
                 type="email"
                 name="email"
-                value={formData.email}
-                onChange={handleChange}
                 required
                 className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
                 placeholder="you@institution.edu"
@@ -124,8 +135,6 @@ export default function SignupPage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                value={formData.password}
-                onChange={handleChange}
                 required
                 className="block w-full pl-10 pr-10 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
                 placeholder="••••••••"
@@ -149,9 +158,7 @@ export default function SignupPage() {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
+                name="password2"
                 required
                 className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-white/[0.03] text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
                 placeholder="••••••••"

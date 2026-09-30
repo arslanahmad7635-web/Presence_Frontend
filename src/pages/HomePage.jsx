@@ -1,9 +1,14 @@
 import Hero from '../components/Hero';
 import AnimatedCardDemo from '../components/AnimatedCardDemo';
+import Navbar from '@/components/Navbar';
+
 
 export default function HomePage() {
   return (
     <>
+      
+      <Navbar />
+      
       <Hero />
       <section className="relative py-28 px-6 md:px-12 overflow-hidden flex flex-col items-center justify-center">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-cyan-500/10 blur-[150px] rounded-full pointer-events-none" />
