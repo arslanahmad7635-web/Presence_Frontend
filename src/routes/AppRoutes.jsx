@@ -12,6 +12,7 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const SignupPage = lazy(() => import('../pages/SignUpPage'));
 const ForgetPasswordPage = lazy(() => import('../pages/ForgetPasswordPage'));
 const UserOtpVerify = lazy(() => import('../pages/UserOtpVerify'));
+const GoogleRegistrationRedirect = lazy(() => import('../pages/GoogleRegistrationRedirect'));
 
 
 export default function AppRoutes() {
@@ -34,6 +35,7 @@ export default function AppRoutes() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgetpassword" element={<ForgetPasswordPage />} />
         <Route path="/user-otp-verify" element={<UserOtpVerify />} />
+        <Route path='/auth/google-registration-callback' element={<GoogleRegistrationRedirect />}/>
       </Routes>
     </Suspense>
   );

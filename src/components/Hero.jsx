@@ -83,7 +83,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="mt-8 text-4xl font-extrabold tracking-tight sm:text-7xl lg:text-[5.8rem] leading-[1.05]"
+          className="mt-8 text-3xl font-extrabold tracking-tight sm:text-7xl lg:text-[5rem] leading-[1.05]"
         >
           Attendance that{' '}
           <span className="block bg-gradient-to-r from-cyan-200 via-cyan-400 to-blue-500 bg-clip-text text-transparent pb-2 drop-shadow-[0_0_35px_rgba(34,211,238,0.3)]">
