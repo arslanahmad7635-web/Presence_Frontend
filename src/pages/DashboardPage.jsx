@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Users,
   UserCheck,
@@ -148,9 +149,9 @@ export default function App() {
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2 text-indigo-600">
             <UserCheck className="w-6 h-6" />
-            <span className="text-xl font-bold tracking-tight text-slate-900">
-              VisionTrack
-            </span>
+            <Link to={'/'} className="text-xl font-bold tracking-tight text-slate-900">
+              Presence
+            </Link>
           </div>
           <button 
             className="md:hidden p-1 text-slate-500 hover:bg-slate-100 rounded-md"
