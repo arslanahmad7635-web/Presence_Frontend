@@ -1,5 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import {PuffLoader} from 'react-spinners';
+import { motion } from 'framer-motion';
 
 const HomePage = lazy(() => import('../pages/HomePage'));
 const AboutPage = lazy(() => import('../pages/AboutPage'));
@@ -11,9 +13,17 @@ const SignupPage = lazy(() => import('../pages/SignUpPage'));
 const ForgetPasswordPage = lazy(() => import('../pages/ForgetPasswordPage'));
 const UserOtpVerify = lazy(() => import('../pages/UserOtpVerify'));
 
+
 export default function AppRoutes() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-[50vh]">Loading...</div>}>
+    <Suspense fallback={
+    <motion.div className="flex flex-col justify-center items-center h-screen w-full bg-[#050A12]">
+
+      <PuffLoader color='white' size={80} />
+      <h2 className='text-xl font-semibold mt-6' style={{'fontFamily' : "Poppins"}}>Patience Is Appreciated</h2>
+
+    </motion.div>
+  }>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />

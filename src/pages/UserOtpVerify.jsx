@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, MailCheck, ScanFace } from 'lucide-react';
+import { ArrowRight, MailCheck, ScanFace, KeyRound } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from './AuthLayoutPage';
 import api from '../services/axios';
 
-const OTP_LENGTH = 4; // per API docs: 4-digit code
+const OTP_LENGTH = 4;
 
 export default function VerifyOtp() {
   const navigate = useNavigate();
@@ -16,20 +16,17 @@ export default function VerifyOtp() {
 
   const inputRefs = useRef([]);
 
-  // Recover token + email from navigation state, with localStorage fallback
   const verificationToken =
     location.state?.verification_token ||
     localStorage.getItem('verification_token');
   const email = location.state?.email || localStorage.getItem('pending_email');
 
-  // If someone lands here without a token, send them back to signup
   useEffect(() => {
     if (!verificationToken) {
       navigate('/dashboard', { replace: true });
     }
   }, [verificationToken, navigate]);
 
-  // Auto-focus first box
   useEffect(() => {
     inputRefs.current[0]?.focus();
   }, []);
@@ -80,7 +77,7 @@ export default function VerifyOtp() {
 
     const otpString = otp.join('');
     if (otpString.length !== OTP_LENGTH) {
-      setError(`Please enter the ${OTP_LENGTH}-digit code`);
+      setError(`Please enter the complete ${OTP_LENGTH}-digit code.`);
       setTimeout(() => setError(''), 2000);
       return;
     }
@@ -93,12 +90,10 @@ export default function VerifyOtp() {
         otp: otpString,
       });
 
-      // Cookies are now set by the backend — persist session meta like Login does
       localStorage.setItem('store_date', response.data['store_date']);
       localStorage.setItem('store_time', response.data['store_time']);
       localStorage.setItem('is_restricted', false);
 
-      // Clean up ephemeral keys
       localStorage.removeItem('verification_token');
       localStorage.removeItem('pending_email');
 
@@ -118,7 +113,6 @@ export default function VerifyOtp() {
       setError(msg);
       setTimeout(() => setError(''), 2500);
 
-      // Clear the inputs so the user can retry
       setOtp(Array(OTP_LENGTH).fill(''));
       inputRefs.current[0]?.focus();
     } finally {
@@ -128,16 +122,16 @@ export default function VerifyOtp() {
 
   return (
     <AuthLayout
-      icon={ScanFace}
-      title="Verify your email"
+      icon={KeyRound}
+      title="Verify Identity"
       subtitle={
         email
-          ? `We sent a ${OTP_LENGTH}-digit code to ${email}.`
-          : `Enter the ${OTP_LENGTH}-digit code we sent to your email.`
+          ? `Enter the ${OTP_LENGTH}-digit security token sent to ${email}`
+          : `Enter the ${OTP_LENGTH}-digit security code sent to your email.`
       }
     >
       {error && (
-        <div className="mb-6 p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
+        <div className="mb-6 p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs text-center font-medium">
           {error}
         </div>
       )}
@@ -156,7 +150,11 @@ export default function VerifyOtp() {
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              className="w-14 h-16 text-center text-2xl font-semibold border border-white/10 rounded-xl bg-white/[0.03] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-white/20 transition-all duration-300"
+              className={`w-14 h-16 text-center text-2xl font-black rounded-2xl border transition-all duration-300 outline-none ${
+                digit
+                  ? 'border-cyan-400 bg-cyan-400/10 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.3)]'
+                  : 'border-white/10 bg-white/[0.03] text-white focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30'
+              }`}
             />
           ))}
         </div>
@@ -164,27 +162,27 @@ export default function VerifyOtp() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 hover:brightness-110 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 shadow-[0_10px_30px_-8px_rgba(56,189,248,0.5)] disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 hover:scale-[1.02] text-slate-950 font-extrabold py-3.5 px-4 rounded-xl transition-all duration-300 shadow-[0_0_22px_rgba(34,211,238,0.35)] disabled:opacity-70"
         >
           {loading ? (
-            <span className="animate-pulse">Verifying…</span>
+            <span className="animate-pulse">Validating Code...</span>
           ) : (
             <>
-              Verify &amp; continue
-              <ArrowRight className="w-4.5 h-4.5" />
+              <span>Verify & Continue</span>
+              <ArrowRight size={16} />
             </>
           )}
         </button>
       </form>
 
-      <div className="mt-8 flex items-center justify-center gap-2 text-sm text-slate-400">
-        <MailCheck className="w-4 h-4 text-slate-500" />
-        <span>Didn&apos;t get a code?</span>
+      <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-slate-400">
+        <MailCheck size={15} className="text-cyan-400" />
+        <span>Didn't receive the email?</span>
         <Link
           to="/signup"
-          className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+          className="text-cyan-400 hover:text-cyan-300 font-bold transition-colors"
         >
-          Try again
+          Resend code
         </Link>
       </div>
     </AuthLayout>
