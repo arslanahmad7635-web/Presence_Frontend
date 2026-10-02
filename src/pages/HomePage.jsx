@@ -62,7 +62,7 @@ const STEPS = [
     d: 'View live attendance, automatic tardiness tracking, and automated summaries directly on your admin dashboard.', 
     s: 'Attendance Logged to Cloud',
     // Contextual image for Step 3: Analytics Dashboard / Real-time reporting
-    img: 'https://media.istockphoto.com/id/1672185254/vector/vector-render-3d-of-right-check-mark-box-green-approvement-icon-or-emblem.jpg?s=612x612&w=0&k=20&c=xOF_2C296y60M9CMvEi0YVaFQUNF0jl18FeBEnoVWDM=',
+    img: 'https://static.vecteezy.com/system/resources/thumbnails/068/589/352/small_2x/neon-style-set-of-check-marks-and-cross-symbols-for-decision-making-and-validation-concepts-isolated-grunge-icons-vector.jpg',
     tag: 'Step 03 • Automated Logs'
   },
 ];

@@ -8,7 +8,7 @@ const AboutPage = lazy(() => import('../pages/AboutPage'));
 const ContactPage = lazy(() => import('../pages/ContactPage'));
 const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
-const DashboardPage = lazy(() => import('../pages/DashboardPage'));
+const DashboardPage = lazy(() => import('../pages/Dashboard/DashboardPage'));
 const SignupPage = lazy(() => import('../pages/SignUpPage'));
 const ForgetPasswordPage = lazy(() => import('../pages/ForgetPasswordPage'));
 const UserOtpVerify = lazy(() => import('../pages/UserOtpVerify'));
