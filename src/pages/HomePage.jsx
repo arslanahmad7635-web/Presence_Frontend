@@ -315,14 +315,36 @@ function CTA() {
 }
 
 export default function HomePage() {
+  const [deferredSectionsReady, setDeferredSectionsReady] = useState(false);
+
+  useEffect(() => {
+    const enableDeferredSections = () => setDeferredSectionsReady(true);
+    const usesIdleCallback = typeof window.requestIdleCallback === 'function';
+    const deferredTask = usesIdleCallback
+      ? window.requestIdleCallback(enableDeferredSections, { timeout: 1200 })
+      : window.setTimeout(enableDeferredSections, 0);
+
+    return () => {
+      if (usesIdleCallback && window.cancelIdleCallback) {
+        window.cancelIdleCallback(deferredTask);
+      } else {
+        window.clearTimeout(deferredTask);
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#050A12] text-white antialiased [overflow-x:clip] font-['Poppins',sans-serif]">
       <Navbar />
       <Hero />
-      <Statement />
-      <Story />
-      <Features />
-      <CTA />
+      {deferredSectionsReady && (
+        <>
+          <Statement />
+          <Story />
+          <Features />
+          <CTA />
+        </>
+      )}
       
       {/* Footer */}
       <footer className="border-t border-white/[0.08] px-6 py-10 text-xs text-slate-500">

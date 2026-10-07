@@ -1,13 +1,21 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../services/axios';
 
 const AuthContext = createContext(null);
+let authInitializationPromise = null;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const mountedRef = useRef(true);
+
+  const handleLogoutLocally = useCallback(() => {
+    localStorage.removeItem('store_time');
+    setUser(null);
+    navigate('/login');
+  }, [navigate]);
 
   // Manual or forced refresh trigger
   const refreshToken = useCallback(async () => {
@@ -18,13 +26,7 @@ export function AuthProvider({ children }) {
       console.error('Proactive token refresh failed:', error);
       handleLogoutLocally();
     }
-  }, []);
-
-  const handleLogoutLocally = () => {
-    localStorage.removeItem('store_time');
-    setUser(null);
-    navigate('/login');
-  };
+  }, [handleLogoutLocally]);
 
   const logout = async () => {
     try {
@@ -37,17 +39,21 @@ export function AuthProvider({ children }) {
   // Proactive Refresh Timer & Initial Session Check
   useEffect(() => {
     let timer;
+    mountedRef.current = true;
 
     // Check who is logged in when the app first loads
     const initializeAuth = async () => {
-      try {
-        const response = await axiosInstance.get('/authentication/get_user_details');
-        setUser(response.data);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
+      if (!authInitializationPromise) {
+        authInitializationPromise = axiosInstance
+          .get('/authentication/get_user_details')
+          .then((response) => response.data)
+          .catch(() => null);
       }
+
+      const authenticatedUser = await authInitializationPromise;
+      if (!mountedRef.current) return;
+      setUser(authenticatedUser);
+      setLoading(false);
     };
 
     initializeAuth();
@@ -70,7 +76,10 @@ export function AuthProvider({ children }) {
     // Run the check every 60 seconds (1 minute)
     timer = setInterval(checkAndRefresh, 60 * 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      mountedRef.current = false;
+      clearInterval(timer);
+    };
   }, [refreshToken]);
 
   return (

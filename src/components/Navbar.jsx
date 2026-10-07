@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ScanFace, ArrowUpRight, LogIn, LayoutDashboard } from 'lucide-react';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import api from '../services/axios';
+import { useAuth } from '../auth/AuthProvider';
 
 const LINKS = [
   { to: '/about', label: 'About' },
@@ -13,24 +13,12 @@ const LINKS = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
-  const [authChecking, setAuthChecking] = useState(true);
   const location = useLocation();
+  const { user, loading: authChecking } = useAuth();
+  const authenticated = Boolean(user);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28 });
-
-  useEffect(() => {
-    let alive = true;
-    api
-      .get('/authentication/check_user_authentication')
-      .then(() => alive && setAuthenticated(true))
-      .catch(() => {})
-      .finally(() => alive && setAuthChecking(false));
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 15);
