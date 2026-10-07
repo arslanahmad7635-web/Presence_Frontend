@@ -6,6 +6,8 @@ export default function SectionsTab({ isActive = true, staffDetails }) {
   const [sections, setSections] = useState([]);
   const [loadingSections, setLoadingSections] = useState(false);
   const [creationTabOpen, setCreationTabOpen] = useState(false);
+  
+
 
   const sectionCount = sections.length;
 
@@ -95,8 +97,19 @@ export default function SectionsTab({ isActive = true, staffDetails }) {
         </button>
       </div>
 
-      <div className="w-full h-9/10 bg-transparent flex items-center justify-center">
-        {/* Render sections grid/list here */}
+      <div className="w-full h-9/10 bg-transparent flex items-start justify-start">
+        {
+          sections.map((section) => (
+            <div className='cursor-pointer p-4 transition-all duration-300 hover:border-cyan-400/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] hover:-translate-y-1 bg-cyan-400/10 rounded-sm border-2 border-cyan-400/40 flex flex-col items-start justify-start'>
+
+              <h1 className='text-sm'>{section.course_code} - {section.course_name}</h1>
+
+              <h1 className='mt-3 text-lg'>{section.name}</h1>
+
+
+            </div>
+          ))
+        }
       </div>
     </div>
   );

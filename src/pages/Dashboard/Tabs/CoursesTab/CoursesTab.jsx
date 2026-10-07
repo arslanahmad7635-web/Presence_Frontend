@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import CreateCourse from './Components/CreateCourse';
 import api from '../../../../services/axios'; // Ensure path relative to this file is correct
+import { PuffLoader } from 'react-spinners';
 
 export default function CoursesTab({ isActive = true, staffDetails }) {
   const [courses, setCourses] = useState([]);
@@ -47,10 +48,11 @@ export default function CoursesTab({ isActive = true, staffDetails }) {
     fetchCourses();
   };
 
-  if (loadingCourses && courses.length === 0) {
+  if (loadingCourses) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-slate-500">
-        Loading Courses...
+      <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
+        <PuffLoader color='white' size={60} />
+        <h2 className='mt-3'>Loading Courses...</h2>
       </div>
     );
   }
@@ -84,7 +86,7 @@ export default function CoursesTab({ isActive = true, staffDetails }) {
     <div className="w-full h-full flex flex-col items-start justify-start">
       <div className="w-full h-1/10 flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight">
-          Total Sections - {coursesCount}
+          Total Courses - {coursesCount}
         </h1>
 
         <button
@@ -95,8 +97,15 @@ export default function CoursesTab({ isActive = true, staffDetails }) {
         </button>
       </div>
 
-      <div className="w-full h-9/10 bg-transparent flex items-center justify-center">
-        {/* Render sections grid/list here */}
+      <div className="w-full h-9/10 bg-transparent flex items-start justify-start">
+        {
+          courses.map((course) => (
+            <div key={course.id} className='p-3 bg-cyan-400/10 rounded-sm flex flex-col items-start justify-start'>
+              <h1>{course.code}</h1>
+              <h1>{course.name}</h1>
+            </div>
+          ))
+        }
       </div>
     </div>
   );
